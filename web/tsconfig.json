@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "es6",
+    "outDir": "dist",
+    "sourceMap": false
+  },
+  "include": ["src/**/*.ts"]
+}
