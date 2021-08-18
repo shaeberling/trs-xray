@@ -23,6 +23,9 @@ class TrsXray {
     $('input:text').keydown(function(e){e.stopPropagation();});
     document.addEventListener("keydown", (evt) => {
       switch (evt.key) {
+        case 'j':
+          this.onControl("step");
+          break;
         case 't':
           this.debug_insertTestData();
           break;
