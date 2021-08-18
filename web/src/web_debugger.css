@@ -9,7 +9,8 @@ body {
 h1 {
   font-family: 'Roboto', sans-serif;
   padding: 0;
-  margin: 0
+  margin: 0;
+  display: inline-block;
 }
 
 #navbar {
@@ -21,6 +22,16 @@ h1 {
 }
 #navbar-content {
   padding: 10px;
+}
+#sut-name, #sut-model-no {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  color: #efc;
+  font-size: 1.5em;
+}
+
+#sut-model-no {
+  color: #fff;
 }
 
 #debug-controls {

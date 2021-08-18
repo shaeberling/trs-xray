@@ -12,7 +12,8 @@ class TrsXray {
 
   private onMessageFromEmulator(json: IDataFromEmulator): void {
     console.log(json);
-    this.onRegisterUpdate(json.registers);
+    if (!!json.context) this.onContextUpdate(json.context);
+    if (!!json.registers) this.onRegisterUpdate(json.registers);
   }
 
   private onControl(action: string): void {
@@ -35,7 +36,10 @@ class TrsXray {
       console.log("Unable to connect to websocket.");
       $("h1").addClass("errorTitle");
     };
-    // socket.onopen = () => TODO: Show connection successful message
+    this.socket.onopen = () => {
+      console.log("Socked opened.");
+      this.onControl("refresh");
+    }
     this.socket.onmessage = (evt) =>  {
       var json = JSON.parse(evt.data);
       this.onMessageFromEmulator(json);
@@ -48,7 +52,12 @@ class TrsXray {
     });
   }
 
-  private onRegisterUpdate(registers): void {
+  private onContextUpdate(ctx: ISUT_Context): void {
+    $("#sut-name").text(ctx.system_name);
+    $("#sut-model-no").text(ctx.model);
+  }
+
+  private onRegisterUpdate(registers: ISUT_Registers): void {
     /* Main registers. */
     let a = (registers.af & 0xFF00) >> 8;
     let f = (registers.af & 0x00FF);
