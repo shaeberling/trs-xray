@@ -11,7 +11,6 @@ class TrsXray {
   private socket: WebSocket;
 
   private onMessageFromEmulator(json: IDataFromEmulator): void {
-    console.log(json);
     if (!!json.context) this.onContextUpdate(json.context);
     if (!!json.registers) this.onRegisterUpdate(json.registers);
   }
@@ -31,6 +30,33 @@ class TrsXray {
           console.log(`Unhandled key event: ${evt.key}`);
       }
     });
+
+    $("#step-btn").on("click", () => { this.onControl("step") });
+    $("#step-over-btn").on("click", () => { this.onControl("step-over") });
+    $("#play-btn").on("click", () => { this.onControl("continue") });
+    $("#reset-btn").on("click", (ev) => {
+      this.onControl(ev.shiftKey ? "hard_reset" : "soft_reset")
+    });
+    this.keepConnectionAliveLoop();
+  }
+
+  private keepConnectionAliveLoop() {
+    if (!this.socket || this.socket.readyState != WebSocket.OPEN) {
+      $("h1").addClass("errorTitle");
+      if (!this.socket ||
+          this.socket.readyState == WebSocket.CLOSED ||
+          this.socket.readyState == WebSocket.CLOSING) {
+        this.createNewSocket();
+      }
+      setTimeout(() => this.keepConnectionAliveLoop(), 200);
+    } else {
+      $("h1").removeClass("errorTitle");
+      setTimeout(() => this.keepConnectionAliveLoop(), 500);
+    }
+  }
+
+  private createNewSocket() {
+    console.log("Creating new Websocket");
     this.socket = new WebSocket("ws://" + location.host + "/channel");
     this.socket.onerror = (evt) => {
       console.log("Unable to connect to websocket.");
@@ -44,12 +70,6 @@ class TrsXray {
       var json = JSON.parse(evt.data);
       this.onMessageFromEmulator(json);
     };
-    $("#step-btn").on("click", () => { this.onControl("step") });
-    $("#step-over-btn").on("click", () => { this.onControl("step-over") });
-    $("#play-btn").on("click", () => { this.onControl("continue") });
-    $("#reset-btn").on("click", (ev) => { 
-      this.onControl(ev.shiftKey ? "hard_reset" : "soft_reset")
-    });
   }
 
   private onContextUpdate(ctx: ISUT_Context): void {
