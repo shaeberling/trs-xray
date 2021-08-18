@@ -142,7 +142,7 @@ class TrsXray {
 
   private debug_insertTestData(): void {
     console.log("Inserting test data for debugging...");
-    const data: IDataFromEmulator = {"context":{"system_name":"sdlTRS","model":3},"registers":{"pc":1,"sp":65535,"af":65535,"bc":0,"de":0,"hl":0,"af_prime":0,"bc_prime":0,"de_prime":0,"hl_prime":0,"ix":0,"iy":0,"i":0,"r_1":0,"r_2":1,"z80_t_state_counter":4,"z80_clockspeed":2.0299999713897705,"z80_iff1":0,"z80_iff2":0,"z80_interrupt_mode":0,"flag_sign":1,"flag_zero":1,"flag_undoc5":1,"flag_half_carry":1,"flag_undoc3":1,"flag_overflow":1,"flag_subtract":1,"flag_carry":1}};
+    const data: IDataFromEmulator = {"context":{"system_name":"sdlTRS","model":3},"registers":{"pc":1,"sp":65535,"af":65535,"bc":0,"de":0,"hl":0,"af_prime":0,"bc_prime":0,"de_prime":0,"hl_prime":0,"ix":0,"iy":0,"i":0,"r_1":0,"r_2":1,"z80_t_state_counter":4,"z80_clockspeed":2.0299999713897705,"z80_iff1":0,"z80_iff2":0,"z80_interrupt_mode":0}};
     this.onMessageFromEmulator(data);
   }
 }
@@ -174,15 +174,6 @@ interface ISUT_Registers {
   z80_iff1: number,
   z80_iff2: number,
   z80_interrupt_mode: number,
-
-  flag_sign: number,
-  flag_zero: number,
-  flag_undoc5: number,
-  flag_half_carry: number,
-  flag_undoc3: number,
-  flag_overflow: number,
-  flag_subtract: number,
-  flag_carry: number,
 }
 
 interface IDataFromEmulator {
