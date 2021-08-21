@@ -3,7 +3,6 @@
   <head>
     <title>TRS X-ray</title>
     <link rel="stylesheet" href="web_debugger.css">
-    <script src="web_debugger.js"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:ital,wght@0,100;0,400;1,900&display=swap');
     </style>
@@ -68,5 +67,25 @@
         <div id="flag-c" class="flag">C</div>
       </div>
     </div>
+
+    <script>
+      isDebugMode = function() {
+        return document.location.href.indexOf("file://") == 0;
+      };
+      addScript = function(src) {
+        var jsScript = document.createElement("script");
+      jsScript.type = "text/javascript";
+      jsScript.src = src;
+      document.body.appendChild(jsScript);
+      };
+
+      if (isDebugMode()) {
+        addScript("jquery.js");
+        addScript("../dist/web_debugger.js");
+      } else {
+        addScript("web_debugger.js");
+      }
+
+    </script>
   </body>
 </html>

@@ -1,3 +1,6 @@
+
+declare function isDebugMode(): boolean;
+
 const CARRY_MASK = 0x1;
 const SUBTRACT_MASK = 0x2;
 const OVERFLOW_MASK = 0x4;
@@ -40,7 +43,8 @@ class TrsXray {
     $("#reset-btn").on("click", (ev) => {
       this.onControl(ev.shiftKey ? "hard_reset" : "soft_reset")
     });
-    this.keepConnectionAliveLoop();
+
+    if (!isDebugMode()) this.keepConnectionAliveLoop();
   }
 
   private keepConnectionAliveLoop() {
