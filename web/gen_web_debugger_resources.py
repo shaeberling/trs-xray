@@ -4,12 +4,14 @@ import sys
 def main(out_path):
   html_str = escape_c_string(read_file("src/web_debugger.html"))
   ts_str = escape_c_string(read_file("dist/web_debugger.js"))
-  jquery_str = escape_c_string(read_file("src/jquery.js"))
+  mem_regions_str = escape_c_string(read_file("src/memory_regions.js"))
   css_str = escape_c_string(read_file("src/web_debugger.css"))
+
+  jquery_str = escape_c_string(read_file("src/jquery.js"))
 
   norm_out_path = normalize_path(out_path)
   write_file(f'{norm_out_path}/web_debugger_resources.h',
-               html_str, ts_str + jquery_str, css_str)
+               html_str, ts_str + jquery_str + mem_regions_str, css_str)
 
 def write_file(filename, html_str, js_str, css_str):
   filename = normalize_path(filename)

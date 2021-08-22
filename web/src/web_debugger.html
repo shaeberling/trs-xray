@@ -68,6 +68,16 @@
       </div>
     </div>
 
+    <div class="section">
+      <div class="section-title">Memory</div>
+      <canvas id="memory-container">
+      </canvas>
+    </div>
+    <div class="section">
+      <div class="section-title">Memory Regions</div>
+      <div id="memory-regions">
+      </div>
+    </div>
     <script>
       isDebugMode = function() {
         return document.location.href.indexOf("file://") == 0;
@@ -81,6 +91,7 @@
 
       if (isDebugMode()) {
         addScript("jquery.js");
+        addScript("memory_regions.js");
         addScript("../dist/web_debugger.js");
       } else {
         addScript("web_debugger.js");

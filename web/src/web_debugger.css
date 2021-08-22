@@ -62,8 +62,8 @@ h1 {
 
 .section {
   font-family: 'Roboto', sans-serif;
-  display: inline-block;
-  margin: 20px;
+  display: inline-grid;
+  margin: 10px;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 3px;
   box-shadow:rgba(0, 0, 0, 0.5) 2px 2px 10px;
@@ -108,7 +108,7 @@ h1 {
 
 #flags{
   display: grid;
-  grid-template-columns: auto auto auto auto auto auto auto auto;
+  grid-template-columns: repeat(8, auto);
 }
 
 .flag {
@@ -123,7 +123,7 @@ h1 {
   color: white;
 }
 
-.errorTitle {  
+.errorTitle {
   animation-name: errorTitleColor;
   animation-duration: 2s;
   animation-iteration-count: infinite;
@@ -133,4 +133,31 @@ h1 {
   0%   {color: rgb(200, 0, 0);}
   50%  {color: #ff9148;}
   100% {color: rgb(202, 0, 0);}
+}
+
+#memory-container {
+  display: grid;
+  grid-template-columns: repeat(256, auto);
+  background: black;
+  height: 1280px;
+  width: 1280px;
+}
+
+.byte {
+  width: 2px;
+  height: 2px;
+  margin: 1px;
+  color: gray;
+}
+
+.map-region-list-entry {
+  font-size: 0.9em;
+  margin: 2px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 3px;
+  cursor: pointer;
+}
+
+.map-region-list-entry:hover {
+  background: rgba(255, 0, 0, 0.5)
 }
