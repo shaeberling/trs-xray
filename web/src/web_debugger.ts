@@ -21,6 +21,9 @@ class TrsXray {
   private memHeatmap: Map<number, number>;
   private memoryData: Uint8Array | null;
   private memoryPrevData: Uint8Array | null;
+  private selectedMemoryRegion: number;
+
+  private enableDataViz: boolean;
 
   constructor() {
     this.canvas = document.getElementById("memory-container") as HTMLCanvasElement;
@@ -32,6 +35,9 @@ class TrsXray {
     this.memHeatmap = new Map();
     this.memoryData = null;
     this.memoryPrevData = null;
+    this.selectedMemoryRegion = -1;
+
+    this.enableDataViz = false;
 
     this.memRegions.map((region, idx) => {
       for (let i = region.address[0]; i<= region.address[region.address.length - 1]; ++i) {
@@ -44,7 +50,6 @@ class TrsXray {
     if (!!json.context) this.onContextUpdate(json.context);
     if (!!json.registers) {
       this.onRegisterUpdate(json.registers);
-      this.renderMemoryRegions(new Array());
     }
   }
 
@@ -62,6 +67,9 @@ class TrsXray {
           break;
         case 't':
           this.debug_insertTestData();
+          break;
+        case 'd':
+          this.enableDataViz = !this.enableDataViz;
           break;
         default:
           console.log(`Unhandled key event: ${evt.key}`);
@@ -118,6 +126,7 @@ class TrsXray {
         var json = JSON.parse(evt.data);
         this.onMessageFromEmulator(json);
       }
+      this.renderMemoryRegions();
     };
   }
 
@@ -235,17 +244,51 @@ class TrsXray {
       $("<div></div>")
           .addClass("map-region-list-entry")
           .text(region.description)
-          .on("mouseover", () => {this.onMemoryRegionSelect(region)})
+          .on("mouseover", () => {this.onMemoryRegionSelect(idx)})
           .appendTo(container);
     });
-    this.renderMemoryRegions(new Array<number>());
+    this.renderMemoryRegions();
   }
 
-  private onMemoryRegionSelect(region: MemoryRegionMetadata): void {
-    this.renderMemoryRegions(region.address);
+  private onMemoryRegionSelect(region: number): void {
+    this.selectedMemoryRegion = region;
+    this.renderMemoryRegions();
   }
 
-  private renderMemoryRegions(addressRange: Array<number>): void {
+  private getColorForByte(addr: number): string {
+    // Set base color for addresses we have data for
+    let color = !!this.memInfo.get(addr) ? "#666" : "#444";
+    // Any byte with value zero get blacked out.
+    if (!!this.memoryData && this.memoryData[addr] == 0) color = "#000";
+
+    if (this.enableDataViz && !!this.memoryData) {
+      let hexValue = (this.memoryData[addr] >> 1).toString(16);
+      if (hexValue.length == 1) hexValue = `0${hexValue}`;
+      color = `#${hexValue}${hexValue}${hexValue}`;
+    }
+
+    // Mark selected range bytes.
+    if (this.selectedMemoryRegion >= 0) {
+      let addressRange = this.memRegions[this.selectedMemoryRegion].address
+      const highlightStart = addressRange[0];
+      const highlightEnd = addressRange[addressRange.length - 1];
+      color = (addr >= highlightStart && addr <= highlightEnd) ? "#F00" : color;
+    }
+
+    // Highlight bytes that have changed with the most recent update.
+    if (!!this.memoryData && !!this.memoryPrevData) {
+      if (this.memoryData[addr] !=
+          this.memoryPrevData[addr]) color = "#FFA500";
+    }
+
+    // Mark special program and stack pointers.
+    if (addr == this.programCounter) color = "#0F0";
+    if (addr == this.stackPointer) color = "#FF0";
+
+    return color;
+  }
+
+  private renderMemoryRegions(): void {
     const gap = 1;
     const byteSize = 6;
     const bytesWidth = 192;
@@ -256,24 +299,11 @@ class TrsXray {
     this.canvas.style.height = this.canvas.height + "px";
     this.ctx.beginPath();
 
-    const highlightStart = addressRange[0];
-    const highlightEnd = addressRange[addressRange.length - 1];
 
     for (let y = 0; y < bytesHeight; ++y) {
       for (let x = 0; x < bytesWidth; ++x) {
         let addr = (y * bytesWidth) + x;
-        let defaultColor = !!this.memInfo.get(addr) ? "#666" : "#444";
-        if (this.memoryData!= null && this.memoryData[addr] == 0) defaultColor = "#000";
-
-        // Find bytes that changed
-        if (!!this.memoryData && !!this.memoryPrevData) {
-          if (this.memoryData[addr] !=
-              this.memoryPrevData[addr]) defaultColor = "#FFA500";
-        }
-
-        this.ctx.fillStyle = (addr >= highlightStart && addr <= highlightEnd) ? "#F00" : defaultColor;
-        if (addr == this.programCounter) this.ctx.fillStyle = "#0F0";
-        if (addr == this.stackPointer) this.ctx.fillStyle = "#FF0";
+        this.ctx.fillStyle = this.getColorForByte(addr);
         this.ctx.fillRect(x*(byteSize+gap), y*(byteSize+gap), byteSize, byteSize);
       }
     }
