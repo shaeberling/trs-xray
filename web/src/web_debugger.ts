@@ -14,26 +14,38 @@ class TrsXray {
   private socket: WebSocket | null = null;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private programCounter: number;
+  private stackPointer: number;
   private memRegions: MemoryRegions;
   private memInfo: Map<number, number>;
+  private memHeatmap: Map<number, number>;
+  private memoryData: Uint8Array | null;
+  private memoryPrevData: Uint8Array | null;
 
   constructor() {
     this.canvas = document.getElementById("memory-container") as HTMLCanvasElement;
     this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+    this.programCounter = 0;
+    this.stackPointer = 0;
     this.memRegions = getMemoryRegions();
     this.memInfo = new Map();
+    this.memHeatmap = new Map();
+    this.memoryData = null;
+    this.memoryPrevData = null;
 
     this.memRegions.map((region, idx) => {
       for (let i = region.address[0]; i<= region.address[region.address.length - 1]; ++i) {
         this.memInfo.set(i, idx);
       }
     });
-    console.log(this.memInfo);
   }
 
   private onMessageFromEmulator(json: IDataFromEmulator): void {
     if (!!json.context) this.onContextUpdate(json.context);
-    if (!!json.registers) this.onRegisterUpdate(json.registers);
+    if (!!json.registers) {
+      this.onRegisterUpdate(json.registers);
+      this.renderMemoryRegions(new Array());
+    }
   }
 
   private onControl(action: string): void {
@@ -41,11 +53,12 @@ class TrsXray {
   }
 
   public onLoad(): void {
-    $('input:text').keydown(function(e){e.stopPropagation();});
+    $('input:text').on("keydown", (evt) => {evt.stopPropagation();});
     document.addEventListener("keydown", (evt) => {
       switch (evt.key) {
         case 'j':
           this.onControl("step");
+          this.onControl("get_memory/0/65536");
           break;
         case 't':
           this.debug_insertTestData();
@@ -55,7 +68,10 @@ class TrsXray {
       }
     });
 
-    $("#step-btn").on("click", () => { this.onControl("step") });
+    $("#step-btn").on("click", () => {
+      this.onControl("step");
+      this.onControl("get_memory/0/65536");
+    });
     $("#step-over-btn").on("click", () => { this.onControl("step-over") });
     $("#play-btn").on("click", () => { this.onControl("continue") });
     $("#reset-btn").on("click", (ev) => {
@@ -94,8 +110,14 @@ class TrsXray {
       this.onControl("refresh");
     }
     this.socket.onmessage = (evt) =>  {
-      var json = JSON.parse(evt.data);
-      this.onMessageFromEmulator(json);
+      if (evt.data instanceof Blob) {
+        evt.data.arrayBuffer().then((data) => {
+          this.onMemoryUpdate(new Uint8Array(data));
+        });
+      } else {
+        var json = JSON.parse(evt.data);
+        this.onMessageFromEmulator(json);
+      }
     };
   }
 
@@ -194,6 +216,16 @@ class TrsXray {
     setFlag("#flag-pv", flag_overflow);
     setFlag("#flag-n",  flag_subtract);
     setFlag("#flag-c",  flag_carry);
+
+    this.programCounter = registers.pc;
+    this.stackPointer = registers.sp;
+  }
+
+  private onMemoryUpdate(memory: Uint8Array): void {
+    // TODO: Compare previous and new data.
+    //       Indicate changed bytes.
+    this.memoryPrevData = this.memoryData;
+    this.memoryData = memory;
   }
 
   private createMemoryRegions(): void {
@@ -215,9 +247,9 @@ class TrsXray {
 
   private renderMemoryRegions(addressRange: Array<number>): void {
     const gap = 1;
-    const byteSize = 3;
-    const bytesWidth = 256;
-    const bytesHeight = 256;
+    const byteSize = 6;
+    const bytesWidth = 192;
+    const bytesHeight = 192;
     this.canvas.width = bytesWidth * (byteSize + gap);
     this.canvas.height = bytesHeight * (byteSize + gap);
     this.canvas.style.width = this.canvas.width + "px";
@@ -231,7 +263,17 @@ class TrsXray {
       for (let x = 0; x < bytesWidth; ++x) {
         let addr = (y * bytesWidth) + x;
         let defaultColor = !!this.memInfo.get(addr) ? "#666" : "#444";
+        if (this.memoryData!= null && this.memoryData[addr] == 0) defaultColor = "#000";
+
+        // Find bytes that changed
+        if (!!this.memoryData && !!this.memoryPrevData) {
+          if (this.memoryData[addr] !=
+              this.memoryPrevData[addr]) defaultColor = "#FFA500";
+        }
+
         this.ctx.fillStyle = (addr >= highlightStart && addr <= highlightEnd) ? "#F00" : defaultColor;
+        if (addr == this.programCounter) this.ctx.fillStyle = "#0F0";
+        if (addr == this.stackPointer) this.ctx.fillStyle = "#FF0";
         this.ctx.fillRect(x*(byteSize+gap), y*(byteSize+gap), byteSize, byteSize);
       }
     }
