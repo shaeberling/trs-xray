@@ -1,9 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "es6",
     "module": "es6",
-    "outDir": "dist",
-    "sourceMap": false
+    "outDir": "dist/ts",
+    "moduleResolution": "node",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "incremental": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "esModuleInterop": false,
   },
-  "include": ["src/**/*.ts"]
+  "lib": [
+    "es2015",
+    "dom"
+  ],
+  "types": [
+    "jquery",
+  ]
 }
