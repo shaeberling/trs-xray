@@ -2,6 +2,9 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>TRS X-ray</title>
     <link rel="stylesheet" href="trs_xray.css">
     <link rel="icon"
@@ -17,6 +20,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   </head>
   <body>
+    <div id="import-overlay">
+      <div>
+        Import trs80gp JSON: <br/>
+        <textarea id="import-content"></textarea><br/>
+        <input id="import-btn" type="button" value="Import"/>
+      </div>
+    </div>
     <div id="navbar"><div id="navbar-content">
       <div id="debug-controls">
         <svg id="step-btn" viewBox="0 0 24 24">
@@ -147,7 +157,7 @@
         addScript("memory_regions.js");
         addScript("../dist/ts/trs_xray.js");
       } else {
-        addScript("trs_xray.js");
+        addScript("trs_xray.js?4");
       }
 
     </script>
