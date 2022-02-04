@@ -153,9 +153,7 @@
       };
 
       if (isDebugMode()) {
-        addScript("jquery.js");
-        addScript("memory_regions.js");
-        addScript("../dist/ts/trs_xray.js");
+        addScript("../dist/webpack/trs_xray.js");
       } else {
         addScript("trs_xray.js?4");
       }
