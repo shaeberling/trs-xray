@@ -10,8 +10,6 @@ npm -version
 npm install -g typescript
 npm install @types/jquery --save-dev
 npm install @types/pixi.js --save-dev
-tsc
-tsc -w
 ```
 
 To bundle multiple TS into single JS file:
@@ -21,3 +19,7 @@ npm install webpack ts-loader --save-dev
 npm install webpack-cli
 ```
 
+To produce webpack output:
+```
+npx webpack
+```
