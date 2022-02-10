@@ -10,12 +10,3 @@ Ensure local node version is removed properly:
 
 Install latest version von NodeJS:
 `nvm install node`
-
-Install TypeScript globally:
-`npm install -g typescript`
-
-Install jquery types:
-`npm install --save-dev @types/jquery`
-
-Webpack
-npm install webpack ts-loader --save-dev

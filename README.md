@@ -3,23 +3,28 @@ TRS-X-ray is a system-agnostic debugger frontend and protocol for TRS-80 systems
 
 # Setup
 
+Install npm and all dependencies.
 ```
-npm install typescript --save-dev
+cd web
 npm install -g npm@7.20.6
-npm -version
-npm install -g typescript
-npm install @types/jquery --save-dev
-npm install @types/pixi.js --save-dev
+npm install
 ```
 
-To bundle multiple TS into single JS file:
-## Install webpack
+Compile TypeScript and pack
 ```
-npm install webpack ts-loader --save-dev
-npm install webpack-cli
+tsc && npx webpack
 ```
 
-To produce webpack output:
+Add HTML and CSS files
 ```
-npx webpack
+cp src/*.html dist/webpack/
+cp src/*.css dist/webpack
 ```
+
+Launch local webserver
+```
+cd dist/webpack
+python3 -m http.server
+```
+
+Point your web browser to `http://localhost:8000/connect=<ip address>`
